@@ -434,3 +434,9 @@ Timeventureでは、タイマーを最後まで完了することやゲームを
 
 - CORSの設定
 - 本番環境でのAPI URLの管理
+
+---
+
+## 11. 画面遷移図
+
+Figma：https://www.figma.com/design/npmfENh90QwKDvMmS4fRU7/Timeventure_%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?node-id=0-1&t=7T82pyeKj3RrbEQB-1
