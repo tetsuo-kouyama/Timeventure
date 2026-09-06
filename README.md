@@ -440,3 +440,10 @@ Timeventureでは、タイマーを最後まで完了することやゲームを
 ## 11. 画面遷移図
 
 Figma：https://www.figma.com/design/npmfENh90QwKDvMmS4fRU7/Timeventure_%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?node-id=0-1&t=7T82pyeKj3RrbEQB-1
+
+---
+
+## 12. ER図
+https://dbdiagram.io/d/Timeventure-6a9a415e5450bea1bee875e9
+
+[![Image from Gyazo](https://i.gyazo.com/b7a9a455cc60e451604db457821ac4c7.png)](https://gyazo.com/b7a9a455cc60e451604db457821ac4c7)
