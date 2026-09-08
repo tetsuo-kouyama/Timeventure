@@ -1,0 +1,26 @@
+ARG RUBY_VERSION=4.0.6
+FROM ruby:${RUBY_VERSION}
+
+ENV TZ=Asia/Tokyo
+ENV LANG=C.UTF-8 
+ENV BUNDLE_PATH='/usr/local/bundle'
+
+# Bundler のバージョンを固定してインストール 
+ARG BUNDLER_VERSION='4.0.20' 
+RUN gem install bundler -v ${BUNDLER_VERSION}
+
+RUN apt-get update -qq && \
+    apt-get install -y build-essential libpq-dev postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY Gemfile Gemfile.lock* ./
+
+RUN bundle install
+
+COPY . . 
+
+EXPOSE 3000 
+
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]
