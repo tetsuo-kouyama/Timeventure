@@ -6,28 +6,41 @@
 
 # === Backend ===
 
-# Ignore bundler config.
+# Bundler
 /backend/.bundle
 
-# Ignore all logfiles and tempfiles.
+# Logfiles and Tempfiles
 /backend/log/*
 /backend/tmp/*
 !/backend/log/.keep
 !/backend/tmp/.keep
 
-# Ignore pidfiles, but keep the directory.
+# Pidfiles
 /backend/tmp/pids/*
 !/backend/tmp/pids/
 !/backend/tmp/pids/.keep
 
-# Ignore storage.
+# Storage
 /backend/storage/*
 !/backend/storage/.keep
 /backend/tmp/storage/*
 !/backend/tmp/storage/
 !/backend/tmp/storage/.keep
 
+# Aseets
 /backend/public/assets
 
-# Ignore key files for decrypting credentials and more.
+# Credentials
 /backend/config/*.key
+
+# === Frontend ===
+
+# Dependencies
+/frontend/node_modules
+
+# Build files
+/frontend/dist
+/frontend/dist-ssr
+
+# Vite local files
+/frontend/*.local
