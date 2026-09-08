@@ -1,0 +1,33 @@
+# === 共通・OS ===
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# === Backend ===
+
+# Ignore bundler config.
+/backend/.bundle
+
+# Ignore all logfiles and tempfiles.
+/backend/log/*
+/backend/tmp/*
+!/backend/log/.keep
+!/backend/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/backend/tmp/pids/*
+!/backend/tmp/pids/
+!/backend/tmp/pids/.keep
+
+# Ignore storage.
+/backend/storage/*
+!/backend/storage/.keep
+/backend/tmp/storage/*
+!/backend/tmp/storage/
+!/backend/tmp/storage/.keep
+
+/backend/public/assets
+
+# Ignore key files for decrypting credentials and more.
+/backend/config/*.key
