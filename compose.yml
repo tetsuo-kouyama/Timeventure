@@ -40,6 +40,18 @@ services:
     tty: true
     stdin_open: true
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+
 volumes:
   postgres_data:
   bundle-volume:
+  node_modules:
