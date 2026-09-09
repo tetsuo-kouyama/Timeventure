@@ -1,0 +1,25 @@
+# Dependabotを設定することで、プロジェクトで使っている gem や GitHub Actions に新しいバージョンが出ていないか定期的に確認し、更新用の Pull Request を自動作成してくれる
+
+version: 2
+
+updates:
+  # Rails
+  - package-ecosystem: bundler    # Bundler（Gemfile / Gemfile.lock）を監視
+    directory: "/backend"         # バックエンドにGemfileがある想定
+    schedule:
+      interval: weekly            # 週1回チェック
+    open-pull-requests-limit: 10  # Dependabotが同時に開くPRは最大10個
+
+  # React
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10

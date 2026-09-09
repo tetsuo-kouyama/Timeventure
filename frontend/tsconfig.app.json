@@ -9,7 +9,6 @@
     "skipLibCheck": true,
 
     /* エイリアスの設定を追加 */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
