@@ -19,4 +19,12 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+
+  // shadcn 生成コードを ESLint 対象外にする
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
