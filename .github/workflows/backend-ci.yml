@@ -1,0 +1,110 @@
+name: Backend CI
+
+# main/develop ブランチへの Pull Request および Push 時に実行
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      # backend ディレクトリ配下、またはこのワークフロー自体の変更時のみ Backend CI を実行する
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches: [main, develop]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  # 1. セキュリティスキャン（Brakeman / Bundler Audit）
+  scan_ruby:
+    runs-on: ubuntu-latest
+
+    # 以降の run ステップをすべて backend ディレクトリ配下で実行
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      # ソースコードの取得
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Ruby 環境のセットアップと Gem のキャッシュ
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: backend
+
+      # Brakeman による Rails 固有の静的セキュリティ診断
+      - name: Scan for common Rails security vulnerabilities using static analysis
+        run: bin/brakeman --no-pager
+
+      # bundler-audit による依存 Gem の既知の脆弱性チェック
+      - name: Scan for known security vulnerabilities in gems used
+        run: bin/bundler-audit
+
+  # 2. 静的解析（RuboCop）
+  lint:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    # RuboCop のキャッシュ保存先環境変数を定義
+    env:
+      RUBOCOP_CACHE_ROOT: tmp/rubocop
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: backend
+
+      # RuboCop 処理の高速化のためのキャッシュ設定
+      - name: Prepare RuboCop cache
+        uses: actions/cache@v4
+        env:
+          DEPENDENCIES_HASH: ${{ hashFiles('backend/.ruby-version', 'backend/**/.rubocop.yml', 'backend/**/.rubocop_todo.yml', 'backend/Gemfile.lock') }}
+        with:
+          path: backend/${{ env.RUBOCOP_CACHE_ROOT }}
+          key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
+          restore-keys: |
+            rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
+
+      # RuboCop の実行（-f github で CI 上の画面（PR）に直接エラー行を注釈表示）
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
+
+  # 3. テスト（Rspec）
+  rspec:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリの取得
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Docker イメージのビルドとバックグラウンド起動
+      - name: Build and start containers
+        run: |
+          docker compose build
+          docker compose up -d
+
+      # テスト用DBの作成とマイグレーション（-T オプションで TTY 無効化）
+      - name: Database setup
+        run: docker compose exec -T -e RAILS_ENV=test backend bin/rails db:prepare
+
+      # RSpec テストの実行
+      - name: Run RSpec
+        run: docker compose exec -T -e RAILS_ENV=test backend bundle exec rspec
+
+      # テストの成否に関わらず（if: always()）、コンテナとボリューム（DBデータ等）を完全に削除
+      - name: Stop containers
+        if: always()
+        run: docker compose down -v

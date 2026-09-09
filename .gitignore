@@ -1,0 +1,46 @@
+# === 共通・OS ===
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# === Backend ===
+
+# Bundler
+/backend/.bundle
+
+# Logfiles and Tempfiles
+/backend/log/*
+/backend/tmp/*
+!/backend/log/.keep
+!/backend/tmp/.keep
+
+# Pidfiles
+/backend/tmp/pids/*
+!/backend/tmp/pids/
+!/backend/tmp/pids/.keep
+
+# Storage
+/backend/storage/*
+!/backend/storage/.keep
+/backend/tmp/storage/*
+!/backend/tmp/storage/
+!/backend/tmp/storage/.keep
+
+# Aseets
+/backend/public/assets
+
+# Credentials
+/backend/config/*.key
+
+# === Frontend ===
+
+# Dependencies
+/frontend/node_modules
+
+# Build files
+/frontend/dist
+/frontend/dist-ssr
+
+# Vite local files
+/frontend/*.local
