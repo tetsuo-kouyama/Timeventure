@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-app_development}
+      POSTGRES_DB: ${POSTGRES_DB:-timeventure_development}
     ports:
       - "5432:5432"
     volumes:
@@ -30,7 +30,7 @@ services:
       # db サービス側のデフォルト値と揃えておく
       DATABASE_USERNAME: ${POSTGRES_USER:-postgres}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      DATABASE_NAME: ${POSTGRES_DB:-app_development}
+      DATABASE_NAME: ${POSTGRES_DB:-timeventure_development}
     command: bin/rails server -b 0.0.0.0
     depends_on:
       db:
