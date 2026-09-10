@@ -1,15 +1,19 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { apiFetch } from "@/lib/api"
+
 
 export function SignupForm() {
   const [emailAddress, setEmailAddress] = useState("")
   const [password, setPassword] = useState("")
   const [passwordConfirmation, setPasswordConfirmation] = useState("")
   const [errors, setErrors] = useState<string[]>([])
+  const navigate = useNavigate()
 
-  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
 
     setErrors([])
@@ -19,11 +23,22 @@ export function SignupForm() {
       return
     }
 
-    console.log({
-      email_address: emailAddress,
-      password,
-      password_confirmation: passwordConfirmation
+    const response = await apiFetch("/api/v1/users", {
+      method: "POST",
+      body: JSON.stringify({
+        email_address: emailAddress,
+        password,
+        password_confirmation: passwordConfirmation,
+      }),
     })
+
+    const data = await response.json()
+
+    if (response.ok) {
+      navigate("/dashboard")
+    } else {
+      setErrors(data.errors ?? ["登録に失敗しました"])
+    }
   }
 
   return (
