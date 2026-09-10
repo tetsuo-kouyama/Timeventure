@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 
 export function PublicHeader() {
   return (
@@ -12,9 +12,9 @@ export function PublicHeader() {
         <div className="flex gap-3">
           <Button variant="outline">ログイン</Button>
 
-          <Button asChild>
-            <Link to="/signup">新規登録</Link>
-          </Button>
+          <Link to="/signup" className={buttonVariants()}>
+            新規登録
+          </Link>
         </div>
       </div>
     </header>
