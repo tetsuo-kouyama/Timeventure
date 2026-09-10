@@ -5,7 +5,7 @@ class Api::V1::UsersController < ApplicationController
     user = User.new(user_params)
 
     if user.save
-      start_new_session_for
+      start_new_session_for user
 
       render json: {
         message: "登録に成功しました",
@@ -21,11 +21,11 @@ class Api::V1::UsersController < ApplicationController
         # 422 Unprocessable Content（バリデーションエラー）を返す
       }, status: :unprocessable_entity
     end
+  end
 
-    private
+  private
 
-    def user_params
-      params.permit(:email_address, :password, :password_confirmation)
-    end
+  def user_params
+    params.permit(:email_address, :password, :password_confirmation)
   end
 end
