@@ -2,31 +2,36 @@ require_relative "boot"
 
 require "rails/all"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
+# Gemfile に記述された Gem を環境（development, test, production）に合わせて読み込み
 Bundler.require(*Rails.groups)
 
 module App
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
+    # Rails 8.1 のデフォルト設定を読み込み
     config.load_defaults 8.1
 
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    # lib ディレクトリ配下の自動読み込み設定（assets や tasks は除外）
     config.autoload_lib(ignore: %w[assets tasks])
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # タイムゾーンを日本時間に設定
+    config.time_zone = "Tokyo"
 
-    # Only loads a smaller set of middleware suitable for API only apps.
-    # Middleware like session, flash, cookies can be added back manually.
-    # Skip views, helpers and assets when generating a new resource.
+    # API モード（View やセッション等の不要なミドルウェアをスキップ）
     config.api_only = true
+
+    # APIモードではCookie middlewareが標準で省かれるため追加
+    config.middleware.use ActionDispatch::Cookies
+
+    # ジェネレーター設定
+    config.generators do |g|
+      g.test_framework :rspec,
+        view_specs: false,       # View のスペックを生成しない
+        helper_specs: false,     # Helper のスペックを生成しない
+        routing_specs: false,    # Routing のスペックを生成しない
+        request_specs: true
+
+      # テストデータ作成ツールとして Factory Bot を使用
+      g.fixture_replacement :factory_bot, dir: "spec/factories"
+    end
   end
 end
