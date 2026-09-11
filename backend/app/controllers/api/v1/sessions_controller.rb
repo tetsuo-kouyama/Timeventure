@@ -13,10 +13,10 @@ class Api::V1::SessionsController < ApplicationController
   def create
     if user = User.authenticate_by(params.permit(:email_address, :password))
       start_new_session_for user
-      # 200 OK（GET成功）を返す
+      # 200 OK（ログイン成功）を返す
       render json: { message: "ログインしました" }, status: :ok
     else
-      # 401 Unauthorized（未認証）を返す
+      # 401 Unauthorized（メールアドレスまたはパスワードが不正）を返す
       render json: { message: "ログインに失敗しました" }, status: :unauthorized
     end
   end

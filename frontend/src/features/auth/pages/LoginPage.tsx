@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom"
-import { SignupForm } from "../components/SignupForm";
-import { PublicLayout } from "@/shared/components/PublicLayout";
+import { PublicLayout } from "@/shared/components/PublicLayout"
+import { LoginForm } from "../components/LoginForm"
 
-export function SignupPage() {
+export function LoginPage() {
   return (
     <PublicLayout>
       <div className="w-full max-w-md space-y-8">
@@ -12,20 +12,21 @@ export function SignupPage() {
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            アカウントを作成して冒険を始めよう
+            ログインして冒険に戻ろう
           </p>
         </div>
 
-        <SignupForm />
+
+        <LoginForm />
 
         <div className="text-center">
           <Link
-            to="/login"
-            className="text-sm text-blue-600 hover:underline"
+		    to="/signup"
+	        className="text-sm text-blue-600 hover:underline"
           >
-            ログインはこちら
+  		  新規登録はこちら
           </Link>
-        </div>
+	    	</div>
       </div>
     </PublicLayout>
   )
