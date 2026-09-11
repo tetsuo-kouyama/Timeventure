@@ -23,6 +23,16 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  def me
+    render json: {
+      user: {
+        id: Current.user.id,
+        email_address: Current.user.email_address,
+        guest: Current.user.guest
+      }
+    }, status: :ok
+  end
+
   private
 
   def user_params
