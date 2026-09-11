@@ -35,7 +35,11 @@ export function SignupForm() {
     const data = await response.json()
 
     if (response.ok) {
-      navigate("/dashboard")
+      navigate("/dashboard", {
+        state: {
+          message: data.message,
+        },
+      })
     } else {
       setErrors(data.errors ?? ["登録に失敗しました"])
     }

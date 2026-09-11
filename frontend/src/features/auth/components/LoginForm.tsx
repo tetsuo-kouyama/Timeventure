@@ -8,13 +8,14 @@ import { apiFetch } from "@/lib/api";
 export function LoginForm() {
   const [emailAddress, setEmailAddress] = useState("")
   const [password, setPassword] = useState("")
-  const [errors, setErrors] = useState<string[]>([])
+  const [error, setError] = useState("")
   const navigate = useNavigate()
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
 
-    setErrors([])
+    // 再度ログインボタンを押したときに、前回のエラーメッセージを消す
+    setError("")
 
     const response = await apiFetch("/api/v1/session", {
       method: "POST",
@@ -27,21 +28,23 @@ export function LoginForm() {
     const data = await response.json()
 
     if (response.ok) {
-      navigate("/dashboard")
+      navigate("/dashboard", {
+        state: {
+          message: data.message,
+        },
+      })
     } else {
-      setErrors(data.message ?? ["ログインに失敗しました"])
+      setError(data.message ?? "ログインに失敗しました")
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {errors.length > 0 && (
+      {error && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4">
-          <ul className="space-y-1 text-sm text-destructive">
-            {errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
+          <p className="text-sm text-destructive">
+            {error}
+          </p>
         </div>
       )}
       <div className="space-y-2">
