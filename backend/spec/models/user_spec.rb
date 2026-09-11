@@ -20,12 +20,20 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context "パスワードが空の場合" do
+        context "メールアドレスのフォーマットが正しい場合" do
+      it "有効になる" do
+        user = build(:user, email_address: "user@example.com")
+
+        expect(user).to be_valid
+      end
+    end
+
+    context "メールアドレスのフォーマットが不正な場合" do
       it "バリデーションエラーになる" do
-        user = build(:user, password: nil, password_confirmation: nil)
+        user = build(:user, email_address: "invalid-email")
 
         expect(user).to be_invalid
-        expect(user.errors[:password]).to be_present
+        expect(user.errors[:email_address]).to be_present
       end
     end
 
@@ -36,6 +44,32 @@ RSpec.describe User, type: :model do
 
         expect(user).to be_invalid
         expect(user.errors[:email_address]).to be_present
+      end
+    end
+
+    context "パスワードが空の場合" do
+      it "バリデーションエラーになる" do
+        user = build(:user, password: nil, password_confirmation: nil)
+
+        expect(user).to be_invalid
+        expect(user.errors[:password]).to be_present
+      end
+    end
+
+    context "パスワードが5文字の場合" do
+      it "バリデーションエラーになる" do
+        user = build(:user, password: "a" * 5, password_confirmation: "a" * 5)
+
+        expect(user).to be_invalid
+        expect(user.errors[:password]).to be_present
+      end
+    end
+
+    context "パスワードが6文字の場合" do
+      it "有効になる" do
+        user = build(:user, password: "a" * 6, password_confirmation: "a" * 6)
+
+        expect(user).to be_valid
       end
     end
   end
