@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiFetch } from "@/lib/api"
-
+import { useAuth } from "../hooks/useAuth"
 
 export function SignupForm() {
   const [emailAddress, setEmailAddress] = useState("")
@@ -12,6 +12,7 @@ export function SignupForm() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("")
   const [errors, setErrors] = useState<string[]>([])
   const navigate = useNavigate()
+  const { refreshUser } = useAuth()
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
@@ -35,6 +36,7 @@ export function SignupForm() {
     const data = await response.json()
 
     if (response.ok) {
+      await refreshUser()
       navigate("/dashboard", {
         state: {
           message: data.message,

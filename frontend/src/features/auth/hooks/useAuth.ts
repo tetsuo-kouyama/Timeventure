@@ -4,7 +4,7 @@ import { useContext } from "react"
 import { AuthContext } from "../context/AuthContext"
 
 export function useAuth() {
-  // user と　isLoading を取得
+  // user、isLoading、refreshUser を取得
   const context = useContext(AuthContext)
 
   // AuthProvider の外側から使うとエラーを発生させる

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "../hooks/useAuth";
 
 export function LoginForm() {
   const [emailAddress, setEmailAddress] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const navigate = useNavigate()
+  const { refreshUser } = useAuth()
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
@@ -28,6 +30,9 @@ export function LoginForm() {
     const data = await response.json()
 
     if (response.ok) {
+      // navigate() 前に認証情報を取得
+      await refreshUser()
+
       navigate("/dashboard", {
         state: {
           message: data.message,
