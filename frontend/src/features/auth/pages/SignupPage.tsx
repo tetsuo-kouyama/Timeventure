@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { PublicHeader } from "@/shared/components/PublicHeader";
 import { SignupForm } from "../components/SignupForm";
 
@@ -18,6 +19,15 @@ export function SignupPage() {
 
 
           <SignupForm />
+
+          <div className="text-center">
+            <Link
+              to="/login"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              ログインはこちら
+            </Link>
+          </div>
         </div>
       </main>
     </div>
