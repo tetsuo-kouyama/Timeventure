@@ -6,6 +6,9 @@ Rails.application.routes.draw do
 
       # 現在ログインしている自分自身の情報を取得するためのAPI
       get "me", to: "users#me"
+
+      # ゲストログイン用API
+      post "guest_login", to: "guest_sessions#create"
     end
   end
 
