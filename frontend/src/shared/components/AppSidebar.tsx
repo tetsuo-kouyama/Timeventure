@@ -1,11 +1,9 @@
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
 export function AppSidebar() {
-  const navigate = useNavigate()
   const { logout } = useAuth()
   const [error, setError] = useState("")
 
@@ -14,7 +12,6 @@ export function AppSidebar() {
 
     try {
       await logout()
-      navigate("/")
     } catch {
       setError("ログアウトに失敗しました")
     }
