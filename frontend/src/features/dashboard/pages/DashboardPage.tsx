@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { SidebarProvider } from "@/components/ui/sidebar"
 import { buttonVariants } from "@/components/ui/button"
-import { AppSidebar } from "@/shared/components/AppSidebar"
 
 import { getTimerSetting } from "@/features/timer/api/timerSettingApi"
 import { TimerDisplay } from "@/features/timer/components/TimerDisplay"
@@ -44,49 +42,45 @@ export function DashboardPage() {
   }, [])
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <>
+      {message && (
+        <div className="mb-4 rounded-md border p-4">
+          {message}
+        </div>
+      )}
 
-      <main className="flex-1 p-8">
-        {message && (
-          <div className="mb-4 rounded-md border p-4">
-            {message}
-          </div>
-        )}
-
-        <div className="mx-auto max-w-3xl">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">集中タイマー</h1>
-            <Link 
-              to="/timer-setting" 
-              className={buttonVariants({ variant: "outline" })}
-            >
-              設定
-            </Link>
-          </div>
+      <div className="mx-auto max-w-3xl">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">集中タイマー</h1>
+          <Link 
+            to="/timer-setting" 
+            className={buttonVariants({ variant: "outline" })}
+          >
+            設定
+          </Link>
+        </div>
         
 
-          {timerSetting ? (
-            <>
-              <TimerDisplay minutes={timerSetting.focus_minutes} />
+        {timerSetting ? (
+          <>
+            <TimerDisplay minutes={timerSetting.focus_minutes} />
 
-              <div className="mt-6 flex justify-center gap-8">
-                <p>
-                  集中タイマー: {timerSetting.focus_minutes}分
-                </p>
+            <div className="mt-6 flex justify-center gap-8">
+              <p>
+                集中タイマー: {timerSetting.focus_minutes}分
+              </p>
 
-                <p>
-                  休憩タイマー: {timerSetting.break_minutes}分
-                </p>
-              </div>
-            </>
-          ) : (
-            <p className="mt-6">
-              読み込み中...
-            </p>
-          )}
-        </div>
-      </main>
-    </SidebarProvider>
+              <p>
+                休憩タイマー: {timerSetting.break_minutes}分
+              </p>
+            </div>
+          </>
+        ) : (
+          <p className="mt-6">
+            読み込み中...
+          </p>
+        )}
+      </div>
+    </>
   )
 }
