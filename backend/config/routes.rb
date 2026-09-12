@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, only: :create
       resource :session, only: %i[create destroy]
+      resource :timer_setting, only: %i[show update]
 
       # 現在ログインしている自分自身の情報を取得するためのAPI
       get "me", to: "users#me"
