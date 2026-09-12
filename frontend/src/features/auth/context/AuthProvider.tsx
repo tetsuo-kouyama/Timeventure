@@ -27,6 +27,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // ユーザーのログアウト処理を行い、セッション／ログイン情報を削除する関数
+  const logout = async () => {
+    const response = await apiFetch("/api/v1/session", {
+      method: "DELETE",
+    })
+
+    // 失敗は例外として扱うことで、API失敗時にもトップページへ遷移することを防ぐ
+    if (!response.ok) {
+      throw new Error("ログアウトに失敗しました")
+    }
+
+    setUser(null)
+  }
+
   // AuthProvider が最初に表示されたタイミングで /api/v1/me を呼ぶ
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -47,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     // user、isLoading、refreshUser を子コンポーネントに共有
-    <AuthContext.Provider value={{ user, isLoading, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   )
