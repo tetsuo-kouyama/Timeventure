@@ -7,3 +7,5 @@ export const MIN_BREAK_MINUTES = 0
 export const MAX_BREAK_MINUTES = 180
 
 export const MINUTE_INTERVAL = 5
+
+export const SECONDS_PER_MINUTE = 60

@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { buttonVariants } from "@/components/ui/button"
 
 import { getTimerSetting } from "@/features/timer/api/timerSettingApi"
-import { TimerDisplay } from "@/features/timer/components/TimerDisplay"
 import type { TimerSetting } from "@/features/timer/types/timer"
+import { TimerPanel } from "@/features/timer/components/TimerPanel"
 
 export function DashboardPage() {
   const location = useLocation()
@@ -63,7 +63,7 @@ export function DashboardPage() {
 
         {timerSetting ? (
           <>
-            <TimerDisplay minutes={timerSetting.focus_minutes} />
+            <TimerPanel setting={timerSetting} />
 
             <div className="mt-6 flex justify-center gap-8">
               <p>
