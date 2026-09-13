@@ -1,7 +1,16 @@
-import { useAuth } from "@/features/auth/hooks/useAuth"
-import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { NavLink } from "react-router-dom"
+import { LayoutDashboard, Timer, LogOut } from "lucide-react"
+
+import { useAuth } from "@/features/auth/hooks/useAuth"
+
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+} from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 
 export function AppSidebar() {
   const { logout } = useAuth()
@@ -17,6 +26,10 @@ export function AppSidebar() {
     }
   }
 
+  const linkClassName =
+    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent"
+
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -25,8 +38,24 @@ export function AppSidebar() {
         </span>
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* タイマー設定などのメニュー */}
+      <SidebarContent className="px-2">
+        <nav className="space-y-1">
+          <NavLink
+            to="/dashboard"
+            className={linkClassName}
+          >
+            <LayoutDashboard className="size-4" />
+            <span>ダッシュボード</span>
+          </NavLink>
+
+          <NavLink
+            to="/timer-setting"
+            className={linkClassName}
+          >
+            <Timer className="size-4" />
+            <span>タイマー設定</span>
+          </NavLink>
+        </nav>
       </SidebarContent>
 
       <SidebarFooter className="border-t">
@@ -44,6 +73,7 @@ export function AppSidebar() {
           className="justify-start"
           onClick={handleLogout}
         >
+          <LogOut className="size-4" />
           ログアウト
         </Button>
       </SidebarFooter>
