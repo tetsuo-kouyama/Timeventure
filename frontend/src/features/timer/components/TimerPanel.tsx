@@ -3,6 +3,7 @@ import { SECONDS_PER_MINUTE } from "../constants/timer";
 import type { TimerMode, TimerSetting } from "../types/timer";
 import { TimerDisplay } from "./TimerDisplay";
 import { Button } from "@/components/ui/button";
+import { InterruptTimerDialog } from "./InterruptTimerDialog";
 
 type Props = {
   setting: TimerSetting // 設定値
@@ -21,18 +22,27 @@ export function TimerPanel({ setting }: Props) {
     setting.focus_minutes * SECONDS_PER_MINUTE
   )
 
+  // モーダルの開閉状態（true: 開く / false: 閉じる）
+  const [isInterruptDialogOpen, setIsInterruptDialogOpen] = useState(false)
+
   // スタートボタン押下時の処理
   const handleStart = () => {
     setIsRunning(true)  // 「実行中」に変更
   }
 
-  // タイマーを止める処理
+  // タイマーを止める共通処理
   const resetTimer = () => {
     setMode("focus")
     setIsRunning(false)
     setRemainingSeconds(
       setting.focus_minutes * SECONDS_PER_MINUTE
     )
+  }
+
+  // タイマーを中断する処理
+  const handleInterrupt = () => {
+    resetTimer()
+    setIsInterruptDialogOpen(false)
   }
 
   // タイマー実行中は1秒ごとに残り時間を減らす
@@ -61,7 +71,7 @@ export function TimerPanel({ setting }: Props) {
         setMode("focus")
         setIsRunning(false)
 
-        return setting.focus_minutes + SECONDS_PER_MINUTE
+        return setting.focus_minutes * SECONDS_PER_MINUTE
       })
     }, 1000)
 
@@ -80,6 +90,13 @@ export function TimerPanel({ setting }: Props) {
     <div>
       <TimerDisplay remainingSeconds={remainingSeconds} mode={mode} />
 
+      {/* 中断処理を子に渡す */}
+      <InterruptTimerDialog
+        open={isInterruptDialogOpen}
+        onOpenChange={setIsInterruptDialogOpen}
+        onInterrupt={handleInterrupt}
+      />
+
       {/* 「停止中」は「スタート」を表示 */}
       {!isRunning && (
         <Button type="button" onClick={handleStart}>
@@ -89,7 +106,11 @@ export function TimerPanel({ setting }: Props) {
 
       {/* 「focus中」は「中断する」を表示  */}
       {isRunning && mode === "focus" && (
-        <Button type="button" variant="destructive">
+        <Button 
+          type="button" 
+          variant="destructive" 
+          onClick={() => setIsInterruptDialogOpen(true)}
+        >
           中断する
         </Button>
       )}
