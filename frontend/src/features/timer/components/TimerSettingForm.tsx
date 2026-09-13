@@ -65,13 +65,14 @@ export function TimerSettingForm({
 
         <Select
           value={String(setting.focus_minutes)}
-          onValueChange={(value: string) =>
+          onValueChange={(value: string | null) => {
+            if (value === null) return;
             // focus_minutesだけ変更し、break_minutesなど他の値はそのまま残す
             onChange({
               ...setting,
               focus_minutes: Number(value),
             })
-          }
+          }}
         >
           <SelectTrigger id="focus-minutes" className="w-full">
             <SelectValue placeholder="集中時間を選択" />
@@ -97,13 +98,14 @@ export function TimerSettingForm({
 
         <Select
           value={String(setting.break_minutes)}
-          onValueChange={(value: string) =>
+          onValueChange={(value: string | null) => {
+            if (value === null) return
             // break_minutesだけ変更する
             onChange({
               ...setting,
               break_minutes: Number(value),
             })
-          }
+          }}
         >
           <SelectTrigger id="break-minutes" className="w-full">
             <SelectValue placeholder="休憩時間を選択" />
