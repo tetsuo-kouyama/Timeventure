@@ -1,10 +1,10 @@
+import { formatTimer } from "../utils/formatTimer"
+
 type Props = {
-  minutes: number
+  remainingSeconds: number
 }
 
-export function TimerDisplay({ minutes }: Props) {
-  const formattedMinutes = String(minutes).padStart(2, "0")
-
+export function TimerDisplay({ remainingSeconds }: Props) {
   return (
     <div className="text-center">
       <p className="text-sm text-muted-foreground">
@@ -12,7 +12,7 @@ export function TimerDisplay({ minutes }: Props) {
       </p>
 
       <p className="mt-2 text-6xl font-bold tabular-nums">
-        {formattedMinutes}:00
+        {formatTimer(remainingSeconds)}
       </p>
     </div>
   )
