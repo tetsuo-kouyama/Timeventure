@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_12_152752) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_015422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "enemies", force: :cascade do |t|
+    t.integer "base_attack", null: false
+    t.integer "base_defense", null: false
+    t.integer "base_hp", null: false
+    t.integer "base_luck", null: false
+    t.integer "base_speed", null: false
+    t.datetime "created_at", null: false
+    t.integer "drop_experience_points", null: false
+    t.integer "drop_gold", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
