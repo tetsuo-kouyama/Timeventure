@@ -1,4 +1,6 @@
 class Api::V1::CharactersController < ApplicationController
+  before_action :set_character, only: :show
+  
   def show
     render json: {
       character: {
