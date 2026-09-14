@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_053158) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_085122) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "adventures", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "ended_at"
+    t.integer "planned_focus_minutes", null: false
+    t.bigint "random_seed", null: false
+    t.bigint "start_area_id", null: false
+    t.datetime "started_at", null: false
+    t.integer "status", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id"], name: "index_adventures_on_character_id"
+    t.index ["start_area_id"], name: "index_adventures_on_start_area_id"
+  end
 
   create_table "area_enemies", force: :cascade do |t|
     t.bigint "area_id", null: false
@@ -93,6 +107,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_053158) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "adventures", "areas", column: "start_area_id"
+  add_foreign_key "adventures", "characters"
   add_foreign_key "area_enemies", "areas"
   add_foreign_key "area_enemies", "enemies"
   add_foreign_key "areas", "areas", column: "prerequisite_area_id"

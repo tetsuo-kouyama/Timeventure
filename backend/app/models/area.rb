@@ -1,6 +1,7 @@
 class Area < ApplicationRecord
   has_many :area_enemies, dependent: :destroy
   has_many :enemies, through: :area_enemies
+  has_many :adventures, foreign_key: :start_area_id, dependent: :restrict_with_error
 
   # 前提エリア
   has_many :next_areas, class_name: "Area", foreign_key: "prerequisite_area_id", dependent: :nullify
