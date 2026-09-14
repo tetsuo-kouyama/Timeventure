@@ -16,5 +16,8 @@ class Adventure < ApplicationRecord
   validates :random_seed,
             numericality: { only_integer: true }
 
+  validates :next_event_index,
+            numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+
   validates :started_at, presence: true
 end
