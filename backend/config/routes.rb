@@ -5,7 +5,11 @@ Rails.application.routes.draw do
       resource :session, only: %i[create destroy]
       resource :timer_setting, only: %i[show update]
       resource :character, only: :show
-      resources :adventures, only: %i[create]
+      resources :adventures, only: :create do
+        member do
+          patch :complete
+        end
+      end
 
       # 現在ログインしている自分自身の情報を取得するためのAPI
       get "me", to: "users#me"

@@ -26,4 +26,45 @@ class Api::V1::AdventuresController < ApplicationController
       }
     }, status: :created
   end
+
+  def complete
+    adventure = Current.user.character.adventures.find(params[:id])
+
+    unless adventure.ongoing?
+      render json: {
+        error: "進行中の冒険はありません"
+      }, status: :unprocessable_entity
+      return
+    end
+
+    generated_events = []
+
+    Adventure.transaction do
+      scheduled_end_at =
+        adventure.started_at + adventure.planned_focus_minutes.minutes
+      if Time.current < scheduled_end_at
+        render json: {
+          error: "タイマーはまだ終了していません"
+        }, status: :unprocessable_entity
+        return
+      end
+
+      adventure.update!(ended_at: scheduled_end_at)
+
+      generated_events =
+        AdventureEventGenerator.new(adventure).call
+
+      adventure.update!(status: :completed)
+    end
+
+    render json: {
+      adventure: {
+        id: adventure.id,
+        status: adventure.status,
+        started_at: adventure.started_at,
+        ended_at: adventure.ended_at,
+        generated_events_count: generated_events.size
+      }
+    }, status: :ok
+  end
 end
