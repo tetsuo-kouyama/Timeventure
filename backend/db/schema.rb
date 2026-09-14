@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_100342) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_171021) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_100342) do
     t.bigint "character_id", null: false
     t.datetime "created_at", null: false
     t.datetime "ended_at"
+    t.integer "next_event_index", default: 1, null: false
     t.integer "planned_focus_minutes", null: false
     t.bigint "random_seed", null: false
     t.bigint "start_area_id", null: false
