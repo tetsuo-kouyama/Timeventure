@@ -1,6 +1,10 @@
 class Area < ApplicationRecord
-  belongs_to :prerequisite_area, class_name: "Area", optional: true
+  has_many :area_enemies, dependent: :destroy
+  has_many :enemies, through: :area_enemies
+
+  # 前提エリア
   has_many :next_areas, class_name: "Area", foreign_key: "prerequisite_area_id", dependent: :nullify
+  belongs_to :prerequisite_area, class_name: "Area", optional: true
 
   enum :area_type, {
     field: 0,
