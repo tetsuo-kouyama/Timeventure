@@ -81,7 +81,7 @@ class AdventureEventGenerator
       elapsed_seconds: event_index * EVENT_INTERVAL_SECONDS,
       event_type: event_type,
       payload: payload_for(event_type, event_index)
-	)
+    )
   end
 
   # イベントタイプを決める
@@ -150,7 +150,7 @@ class AdventureEventGenerator
     raise "敵編成を抽出できませんでした"
   end
 
-    # イベントの重みをハッシュにする
+  # イベントの重みをハッシュにする
   def event_weights
     {
       "battle" => adventure.start_area.battle_weight,
