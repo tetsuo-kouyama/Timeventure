@@ -104,4 +104,4 @@ area_enemies_data.each do |data|
     encounter_weight: data[:encounter_weight]
   )
 end
-puts "⚔️ エリアに出現する敵の seed データの読み込みに成功しました！" 
+puts "⚔️ エリアに出現する敵の seed データの読み込みに成功しました！"
