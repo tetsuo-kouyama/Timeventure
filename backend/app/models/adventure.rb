@@ -2,6 +2,8 @@ class Adventure < ApplicationRecord
   belongs_to :character
   belongs_to :start_area, class_name: "Area"
 
+  has_many :adventure_events, dependent: :destroy
+
   enum :status, {
     ongoing: 0,
     completed: 1,

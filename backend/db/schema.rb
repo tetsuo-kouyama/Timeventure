@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_085122) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_100342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "adventure_events", force: :cascade do |t|
+    t.bigint "adventure_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "elapsed_seconds", null: false
+    t.integer "event_index", null: false
+    t.integer "event_type", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["adventure_id", "event_index"], name: "index_adventure_events_on_adventure_id_and_event_index", unique: true
+    t.index ["adventure_id"], name: "index_adventure_events_on_adventure_id"
+  end
 
   create_table "adventures", force: :cascade do |t|
     t.bigint "character_id", null: false
@@ -107,6 +119,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_085122) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "adventure_events", "adventures"
   add_foreign_key "adventures", "areas", column: "start_area_id"
   add_foreign_key "adventures", "characters"
   add_foreign_key "area_enemies", "areas"
