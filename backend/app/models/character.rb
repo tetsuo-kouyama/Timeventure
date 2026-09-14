@@ -3,6 +3,7 @@ class Character < ApplicationRecord
   ATK_GROWTH = 1
   DEF_GROWTH = 1
 
+  has_many :adventures, dependent: :destroy
   belongs_to :user
 
   validates :name, presence: true
