@@ -4,6 +4,7 @@ import type { TimerMode, TimerSetting } from "../types/timer";
 import { TimerDisplay } from "./TimerDisplay";
 import { Button } from "@/components/ui/button";
 import { InterruptTimerDialog } from "./InterruptTimerDialog";
+import { calculateRemainingSeconds } from "../utils/calculateRemainingSeconds";
 
 type Props = {
   setting: TimerSetting // 設定値
@@ -22,12 +23,18 @@ export function TimerPanel({ setting }: Props) {
     setting.focus_minutes * SECONDS_PER_MINUTE
   )
 
+  // タイマーの終了予定時刻
+  const [endTime, setEndTime] = useState<number | null>(null)
+
   // モーダルの開閉状態（true: 開く / false: 閉じる）
   const [isInterruptDialogOpen, setIsInterruptDialogOpen] = useState(false)
 
   // スタートボタン押下時の処理
   const handleStart = () => {
-    setIsRunning(true)  // 「実行中」に変更
+    const durationMilliseconds = remainingSeconds * 1000
+
+    setEndTime(Date.now() + durationMilliseconds)
+    setIsRunning(true)   // 「実行中」に変更
   }
 
   // タイマーを止める共通処理
@@ -37,6 +44,7 @@ export function TimerPanel({ setting }: Props) {
     setRemainingSeconds(
       setting.focus_minutes * SECONDS_PER_MINUTE
     )
+    setEndTime(null)
   }
 
   // タイマーを中断する処理
@@ -48,31 +56,34 @@ export function TimerPanel({ setting }: Props) {
   // タイマー実行中は1秒ごとに残り時間を減らす
   useEffect(() => {
     if (!isRunning) return
+    if (endTime === null) return
 
     const timer = setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev > 1) {
-          return prev - 1
+      const remaining = calculateRemainingSeconds(endTime)
+
+      if (remaining > 0) {
+        setRemainingSeconds(remaining)
+        return
+      }
+
+      if (mode === "focus") {
+        if (setting.break_minutes === 0) {
+          resetTimer()
+          return
         }
 
-        if (mode === "focus") {
-          if (setting.break_minutes === 0) {
-            setMode("focus")
-            setIsRunning(false)
+        const breakSeconds = setting.break_minutes * SECONDS_PER_MINUTE
 
-            return setting.focus_minutes * SECONDS_PER_MINUTE
-          }
+        setMode("break")
+        setRemainingSeconds(breakSeconds)
+        setEndTime(Date.now() + breakSeconds * 1000)
 
-          setMode("break")
+        return
+      }
 
-          return setting.break_minutes * SECONDS_PER_MINUTE
-        }
-
-        setMode("focus")
-        setIsRunning(false)
-
-        return setting.focus_minutes * SECONDS_PER_MINUTE
-      })
+      if (mode === "break") {
+        resetTimer()
+      }
     }, 1000)
 
     // useEffect のクリーンアップ関数
@@ -81,8 +92,8 @@ export function TimerPanel({ setting }: Props) {
     }
   }, [
     isRunning,
+    endTime,
     mode,
-    setting.focus_minutes,
     setting.break_minutes,
   ])
 
