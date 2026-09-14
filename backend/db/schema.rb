@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_032231) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_14_053158) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -35,6 +35,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_032231) do
     t.integer "treasure_weight", null: false
     t.datetime "updated_at", null: false
     t.index ["prerequisite_area_id"], name: "index_areas_on_prerequisite_area_id"
+  end
+
+  create_table "characters", force: :cascade do |t|
+    t.integer "base_attack", default: 5, null: false
+    t.integer "base_defense", default: 5, null: false
+    t.integer "base_hp", default: 20, null: false
+    t.integer "base_luck", default: 5, null: false
+    t.integer "base_speed", default: 5, null: false
+    t.datetime "created_at", null: false
+    t.integer "experience_points", default: 0, null: false
+    t.integer "gold", default: 100, null: false
+    t.integer "level", default: 1, null: false
+    t.string "name", default: "冒険者", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_characters_on_user_id", unique: true
   end
 
   create_table "enemies", force: :cascade do |t|
@@ -80,6 +96,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_032231) do
   add_foreign_key "area_enemies", "areas"
   add_foreign_key "area_enemies", "enemies"
   add_foreign_key "areas", "areas", column: "prerequisite_area_id"
+  add_foreign_key "characters", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "timer_settings", "users"
 end
