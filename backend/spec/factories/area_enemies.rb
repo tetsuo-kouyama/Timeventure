@@ -1,8 +1,9 @@
 FactoryBot.define do
   factory :area_enemy do
-    area { nil }
-    enemy { nil }
+    association :area
+    association :enemy
+
     level { 1 }
-    encounter_weight { 1 }
+    encounter_weight { 100 }
   end
 end
