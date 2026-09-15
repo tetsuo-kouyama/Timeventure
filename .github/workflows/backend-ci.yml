@@ -98,8 +98,9 @@ jobs:
 
       # テスト用DBの作成とマイグレーション（-T オプションで TTY 無効化）
       - name: Database setup
-        run: docker compose exec -T -e RAILS_ENV=test backend bin/rails db:create
-        run: docker compose exec -T -e RAILS_ENV=test backend bin/rails db:schema:load
+        run: |
+          docker compose exec -T -e RAILS_ENV=test backend bin/rails db:create
+          docker compose exec -T -e RAILS_ENV=test backend bin/rails db:schema:load
 
       # RSpec テストの実行
       - name: Run RSpec
