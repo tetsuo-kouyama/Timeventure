@@ -22,6 +22,8 @@ class AdventureEventGenerator
 
         adventure.next_event_index += 1
       end
+      # save 前にレベルアップ判定を行う
+      character.update_level
 
       adventure.save!
       character.save!
@@ -118,7 +120,26 @@ class AdventureEventGenerator
 
   # 戦闘イベント
   def battle_payload(event_index)
-    {}
+    area_enemy = choose_area_enemy(event_index)
+
+    victory =
+      character.total_power >= area_enemy.enemy.total_power(area_enemy.level)
+
+    gold_reward = victory ? area_enemy.enemy.drop_gold : 0
+    exp_reward = victory ? area_enemy.enemy.drop_experience_points : 0
+
+    character.gold += gold_reward
+    character.experience_points += exp_reward
+
+    {
+      area_enemy_id: area_enemy.id,
+      enemy_id: area_enemy.enemy.id,
+      enemy_name: area_enemy.enemy.name,
+      level: area_enemy.level,
+      gold_reward: gold_reward,
+      exp_reward: exp_reward,
+      victory: victory
+    }
   end
 
   # ======================================
