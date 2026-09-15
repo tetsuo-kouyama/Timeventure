@@ -67,4 +67,35 @@ class Api::V1::AdventuresController < ApplicationController
       }
     }, status: :ok
   end
+
+  def interrupt
+    adventure = Current.user.character.adventures.find(params[:id])
+
+    unless adventure.ongoing?
+      render json: {
+        error: "進行中の冒険はありません"
+      }, status: :unprocessable_entity
+      return
+    end
+
+    generated_events = []
+
+    Adventure.transaction do
+      adventure.update!(ended_at: Time.current)
+      generated_events =
+        AdventureEventGenerator.new(adventure).call
+
+      adventure.update!(status: :interrupted)
+    end
+
+    render json: {
+      adventure: {
+        id: adventure.id,
+        status: adventure.status,
+        started_at: adventure.started_at,
+        ended_at: adventure.ended_at,
+        generated_events_count: generated_events.size
+      }
+    }, status: :ok
+  end
 end

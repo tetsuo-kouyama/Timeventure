@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       resources :adventures, only: :create do
         member do
           patch :complete
+          patch :interrupt
         end
       end
 
