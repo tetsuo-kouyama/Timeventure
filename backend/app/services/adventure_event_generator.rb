@@ -118,7 +118,7 @@ class AdventureEventGenerator
 
   # 戦闘イベント
   def battle_payload(event_index)
-    # 次のPRで追加
+    {}
   end
 
   # ======================================
