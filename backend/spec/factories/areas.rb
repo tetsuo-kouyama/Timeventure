@@ -1,9 +1,13 @@
 FactoryBot.define do
   factory :area do
     prerequisite_area { nil }
-    name { "MyString" }
-    area_type { 1 }
-    battle_weight { 1 }
-    treasure_weight { 1 }
+    name { "テストフィールド" }
+    area_type { :field }
+    battle_weight { 8 }
+    treasure_weight { 2 }
+
+    trait :town do
+      area_type { :town }
+    end
   end
 end
