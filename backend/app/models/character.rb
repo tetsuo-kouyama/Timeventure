@@ -3,11 +3,27 @@ class Character < ApplicationRecord
   ATK_GROWTH = 1
   DEF_GROWTH = 1
 
+  MAX_LEVEL = 10
+
+  # 経験値テーブル（レベル10まで）
+  LEVEL_THRESHOLDS = {
+    1 => 0,
+    2 => 10,
+    3 => 30,
+    4 => 60,
+    5 => 100,
+    6 => 150,
+    7 => 210,
+    8 => 280,
+    9 => 360,
+    10 => 450
+  }.freeze
+
   has_many :adventures, dependent: :destroy
   belongs_to :user
 
   validates :name, presence: true
-  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: MAX_LEVEL }
   validates :gold, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :experience_points, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :base_hp, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
@@ -38,8 +54,18 @@ class Character < ApplicationRecord
     base_luck + (level - 1) / 3
   end
 
-  def character_total_power
+  def total_power
     hp + attack + defense + speed + luck
+  end
+
+  # レベルアップ判定
+  def update_level
+    new_level = LEVEL_THRESHOLDS
+      .select { |_level, required_exp| experience_points >= required_exp }
+      .keys
+      .max
+
+    self.level = new_level
   end
 
   private
