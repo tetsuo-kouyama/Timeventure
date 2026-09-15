@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe "Api::V1::Adventures", type: :request do
   describe "POST /create" do
     let!(:user) { create(:user) }
-    let!(:character) { (user.character) }
-    let!(:timer_setting) { (user.timer_setting) }
+    let!(:character) { user.character }
+    let!(:timer_setting) { user.timer_setting }
     let!(:start_area) { create(:area, name: "草原") }
 
     context "正常系" do
@@ -38,7 +38,7 @@ RSpec.describe "Api::V1::Adventures", type: :request do
 
   describe "PATCH /complete" do
     let!(:user) { create(:user) }
-    let!(:character) { (user.character) }
+    let!(:character) { user.character }
     let!(:start_area) { create(:area, name: "草原") }
     let!(:enemy) { create(:enemy) }
     let!(:adventure) {
@@ -123,9 +123,9 @@ RSpec.describe "Api::V1::Adventures", type: :request do
     end
   end
 
-    describe "PATCH /interrupt" do
+  describe "PATCH /interrupt" do
     let!(:user) { create(:user) }
-    let!(:character) { (user.character) }
+    let!(:character) { user.character }
     let!(:start_area) { create(:area, name: "草原") }
     let!(:enemy) { create(:enemy) }
     let!(:adventure) {
