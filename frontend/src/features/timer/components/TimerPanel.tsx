@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { SECONDS_PER_MINUTE } from "../constants/timer";
 import type { TimerMode, TimerSetting } from "../types/timer";
 import { TimerDisplay } from "./TimerDisplay";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Link } from "react-router-dom"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { InterruptTimerDialog } from "./InterruptTimerDialog";
 import { calculateRemainingSeconds } from "../utils/calculateRemainingSeconds";
 import { completeAdventure, createAdventure, interruptAdventure } from "@/features/adventure/api/adventureApi";
@@ -192,61 +199,79 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
   ])
 
   return (
-    <div className="flex flex-col items-center gap-8">
-      <TimerDisplay remainingSeconds={remainingSeconds} mode={mode} />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>集中タイマー</CardTitle>
 
-      <div className="mt-8 flex gap-12 text-sm text-muted-foreground">
-        <p>集中タイマー: {setting.focus_minutes}分</p>
-        <p>休憩タイマー: {setting.break_minutes}分</p>
-      </div>
+        <Link
+          to="/timer-setting"
+          className={buttonVariants({ variant: "outline" })}
+        >
+          設定
+        </Link>
+      </CardHeader>
+
+      <CardContent className="flex flex-col items-center gap-8">
+        <TimerDisplay
+          remainingSeconds={remainingSeconds}
+          mode={mode}
+        />
+
+        {/* ここから現在のタイマーUI */}
+        <div className="mt-8 flex gap-12 text-sm text-muted-foreground">
+          <p>集中タイマー: {setting.focus_minutes}分</p>
+          <p>休憩タイマー: {setting.break_minutes}分</p>
+        </div>
 
 
-      {/* 中断処理を子に渡す */}
-      <InterruptTimerDialog
-        open={isInterruptDialogOpen}
-        onOpenChange={setIsInterruptDialogOpen}
-        onInterrupt={handleInterrupt}
-        isInterrupting={isInterrupting}
-      />
+        {/* 中断処理を子に渡す */}
+        <InterruptTimerDialog
+          open={isInterruptDialogOpen}
+          onOpenChange={setIsInterruptDialogOpen}
+          onInterrupt={handleInterrupt}
+          isInterrupting={isInterrupting}
+        />
 
-      {/* エラー表示 */}
-      {error && (
-        <p className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-
-      <div className="mt-5">
-
-        {/* 「停止中」は「スタート」を表示 */}
-        {!isRunning && (
-          <Button
-            type="button"
-            onClick={handleStart}
-            disabled={isStarting}
-          >
-          {isStarting ? "開始中..." : "スタート"}
-          </Button>
+        {/* エラー表示 */}
+        {error && (
+          <p className="text-sm text-destructive">
+            {error}
+          </p>
         )}
 
-        {/* 「focus中」は「中断する」を表示  */}
-        {isRunning && mode === "focus" && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => setIsInterruptDialogOpen(true)}
-          >
-            中断する
-          </Button>
-        )}
+        <div className="mt-5">
 
-        {/* 「break中」は「終了する」を表示」 */}
-        {isRunning && mode === "break" && (
-          <Button type="button" onClick={resetTimer}>
-            終了する
-          </Button>
-        )}
-      </div>
-    </div>
+          {/* 「停止中」は「スタート」を表示 */}
+          {!isRunning && (
+            <Button
+              type="button"
+              onClick={handleStart}
+              disabled={isStarting}
+            >
+            {isStarting ? "開始中..." : "スタート"}
+            </Button>
+          )}
+
+          {/* 「focus中」は「中断する」を表示  */}
+          {isRunning && mode === "focus" && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setIsInterruptDialogOpen(true)}
+            >
+              中断する
+            </Button>
+          )}
+
+          {/* 「break中」は「終了する」を表示」 */}
+          {isRunning && mode === "break" && (
+            <Button type="button" onClick={resetTimer}>
+              終了する
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
+
