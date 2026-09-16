@@ -64,15 +64,15 @@ class Api::V1::AdventuresController < ApplicationController
     end
 
     break_minutes = Current.user.timer_setting.break_minutes
- 
+
     break_end_at =
       completed_adventure.ended_at + break_minutes.minutes
- 
+
     if Time.current >= break_end_at
       head :no_content
       return
     end
- 
+
     render json: {
       mode: "break",
       adventure: {

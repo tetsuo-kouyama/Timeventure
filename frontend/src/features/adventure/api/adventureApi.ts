@@ -58,8 +58,9 @@ export async function interruptAdventure(
 }
 
 // current Adventure を取得する関数
-export async function getCurrentAdventure() {
-  const response = await apiFetch("/api/v1/adventures/current", {
+export async function getCurrentAdventure(): 
+  Promise<CurrentAdventureResponse | null> {
+    const response = await apiFetch("/api/v1/adventures/current", {
     credentials: "include",
   })
 
