@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/card"
 import { InterruptTimerDialog } from "./InterruptTimerDialog";
 import { calculateRemainingSeconds } from "../utils/calculateRemainingSeconds";
-import { completeAdventure, createAdventure, interruptAdventure } from "@/features/adventure/api/adventureApi";
+import {
+  completeAdventure,
+  createAdventure,
+  interruptAdventure,
+  getCurrentAdventure,
+} from "@/features/adventure/api/adventureApi";
 import type { AdventureResultResponse } from "@/features/adventure/types/adventure";
 
 type Props = {
@@ -69,15 +74,14 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
       const durationMilliseconds = remainingSeconds * 1000
       setEndTime(Date.now() + durationMilliseconds)
 
-      setIsRunning(true)   // 「実行中」に変更
+      // 「実行中」に変更
+      setIsRunning(true)
     } catch {
       setError("冒険の開始に失敗しました")
     } finally {
       setIsStarting(false)
     }
   }
-
-
 
   // タイマーを止める共通処理
   const resetTimer = () => {
@@ -116,6 +120,70 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
     }
   }
 
+  // リロード時に進行中のAdventureを取得してタイマーを復元する
+   useEffect(() => {
+    const restoreTimer = async () => {
+      try {
+        const data = await getCurrentAdventure()
+
+        // 復元するタイマーがない
+        if (data === null) return
+
+        // 集中タイマーを復元
+        if (data.mode === "focus") {
+          const adventure = data.adventure
+
+          const startedAt =
+            new Date(adventure.started_at).getTime()
+
+          const restoredEndTime =
+            startedAt +
+            adventure.planned_focus_minutes *
+              SECONDS_PER_MINUTE *
+              1000
+
+          const remaining =
+            calculateRemainingSeconds(restoredEndTime)
+
+          setAdventureId(adventure.id)
+          setEndTime(restoredEndTime)
+          setRemainingSeconds(remaining)
+          setMode("focus")
+          setIsRunning(true)
+
+          return
+        }
+
+        // 休憩タイマーを復元
+        if (data.mode === "break") {
+          const adventure = data.adventure
+
+          const endedAt =
+            new Date(adventure.ended_at).getTime()
+
+         const restoredEndTime =
+           endedAt +
+           adventure.break_minutes *
+             SECONDS_PER_MINUTE *
+             1000
+
+         const remaining =
+           calculateRemainingSeconds(restoredEndTime)
+
+         setAdventureId(null)
+         setEndTime(restoredEndTime)
+         setRemainingSeconds(remaining)
+         setMode("break")
+         setIsRunning(true)
+       }
+     } catch {
+       setError("タイマーの復元に失敗しました")
+     }
+   }
+
+   void restoreTimer()
+}, [])
+
   // タイマー実行中の処理
   useEffect(() => {
     if (!isRunning) return
@@ -146,7 +214,7 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
           setAdventureId(null)
           return
         }
-        
+
         // 休憩タイマーを開始
         const breakSeconds = setting.break_minutes * SECONDS_PER_MINUTE
         setMode("break")

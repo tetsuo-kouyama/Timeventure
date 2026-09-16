@@ -4,7 +4,8 @@ import { apiFetch } from "@/lib/api"
 
 import type {
   CreateAdventureResponse,
-  AdventureResultResponse
+  AdventureResultResponse,
+  CurrentAdventureResponse,
 } from "../types/adventure"
 
 // 冒険開始時の処理
@@ -51,6 +52,23 @@ export async function interruptAdventure(
 
   if (!response.ok) {
     throw new Error("冒険の中断に失敗しました")
+  }
+
+  return response.json()
+}
+
+// current Adventure を取得する関数
+export async function getCurrentAdventure() {
+  const response = await apiFetch("/api/v1/adventures/current", {
+    credentials: "include",
+  })
+
+  if (response.status === 204) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error("進行中の冒険の取得に失敗しました")
   }
 
   return response.json()
