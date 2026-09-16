@@ -63,44 +63,14 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
       setEndTime(Date.now() + durationMilliseconds)
 
       setIsRunning(true)   // 「実行中」に変更
-    } catch (error) {
+    } catch {
       setError("冒険の開始に失敗しました")
     } finally {
       setIsStarting(false)
     }
   }
 
-  // 完了時の処理
-  const handleComplete = async () => {
-    if (adventureId === null) return
-    if (isCompleting) return
 
-    setIsCompleting(true)
-    setError(null)
-
-    try {
-      const data = await completeAdventure(adventureId)
-
-      // 冒険結果を保持
-      onAdventureResult(data)
-
-      // 休憩時間が0分の場合はタイマーを終了
-      if (setting.break_minutes === 0) {
-        resetTimer()
-        return
-      }
-
-      // 休憩タイマーを開始
-      const breakSeconds = setting.break_minutes * SECONDS_PER_MINUTE
-      setMode("break")
-      setRemainingSeconds(breakSeconds)
-      setEndTime(Date.now() + breakSeconds * 1000)
-    } catch (error) {
-      setError("冒険の完了に失敗しました")
-    } finally {
-      setIsCompleting(false)
-    }
-  }
 
   // タイマーを止める共通処理
   const resetTimer = () => {
@@ -110,6 +80,7 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
       setting.focus_minutes * SECONDS_PER_MINUTE
     )
     setEndTime(null)
+    setAdventureId(null)
   }
 
   // 中断時の処理
@@ -131,7 +102,7 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
 
       // 中断確認ダイアログを閉じる
       setIsInterruptDialogOpen(false)
-    } catch (error) {
+    } catch {
       setError("冒険の中断に失敗しました")
     } finally {
       setIsInterrupting(false)
@@ -143,6 +114,44 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
     if (!isRunning) return
     if (endTime === null) return
 
+    // 完了時の処理
+    const handleComplete = async (completedAt: number) => {
+      if (adventureId === null) return
+      if (isCompleting) return
+
+      setIsCompleting(true)
+      setError(null)
+
+      try {
+        const data = await completeAdventure(adventureId)
+
+        // 冒険結果を保持
+        onAdventureResult(data)
+
+        // 休憩時間が0分の場合はタイマーを終了
+        if (setting.break_minutes === 0) {
+          setMode("focus")
+          setIsRunning(false)
+          setRemainingSeconds(
+            setting.focus_minutes * SECONDS_PER_MINUTE
+          )
+          setEndTime(null)
+          setAdventureId(null)
+          return
+        }
+        
+        // 休憩タイマーを開始
+        const breakSeconds = setting.break_minutes * SECONDS_PER_MINUTE
+        setMode("break")
+        setRemainingSeconds(breakSeconds)
+        setEndTime(completedAt + breakSeconds * 1000)
+      } catch {
+        setError("冒険の完了に失敗しました")
+      } finally {
+        setIsCompleting(false)
+      }
+    }
+
     const timer = setInterval(() => {
       const remaining = calculateRemainingSeconds(endTime)
 
@@ -152,12 +161,18 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
       }
 
       if (mode === "focus") {
-        void handleComplete()
+        void handleComplete(Date.now())
         return
       }
 
       if (mode === "break") {
-        resetTimer()
+        setMode("focus")
+        setIsRunning(false)
+        setRemainingSeconds(
+         setting.focus_minutes * SECONDS_PER_MINUTE
+        )
+        setEndTime(null)
+        setAdventureId(null)
       }
     }, 1000)
 
@@ -170,6 +185,10 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
     endTime,
     mode,
     setting.break_minutes,
+    adventureId,
+    isCompleting,
+    onAdventureResult,
+    setting.focus_minutes,
   ])
 
   return (
@@ -212,9 +231,9 @@ export function TimerPanel({ setting, onAdventureResult }: Props) {
 
         {/* 「focus中」は「中断する」を表示  */}
         {isRunning && mode === "focus" && (
-          <Button 
-            type="button" 
-            variant="destructive" 
+          <Button
+            type="button"
+            variant="destructive"
             onClick={() => setIsInterruptDialogOpen(true)}
           >
             中断する
