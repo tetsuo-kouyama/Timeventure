@@ -34,6 +34,55 @@ class Api::V1::AdventuresController < ApplicationController
     finish_adventure(ended_at: Time.current, status: :interrupted)
   end
 
+  def current
+    character = Current.user.character
+
+    ongoing_adventure =
+      character.adventures.find_by(status: :ongoing)
+
+    if ongoing_adventure
+      render json: {
+        mode: "focus",
+        adventure: {
+          id: ongoing_adventure.id,
+          started_at: ongoing_adventure.started_at,
+          planned_focus_minutes: ongoing_adventure.planned_focus_minutes
+        }
+      }, status: :ok
+      return
+    end
+
+    completed_adventure =
+      character.adventures
+               .where(status: :completed)
+               .order(ended_at: :desc)
+               .first
+
+    if completed_adventure.nil?
+      head :no_content
+      return
+    end
+
+    break_minutes = Current.user.timer_setting.break_minutes
+ 
+    break_end_at =
+      completed_adventure.ended_at + break_minutes.minutes
+ 
+    if Time.current >= break_end_at
+      head :no_content
+      return
+    end
+ 
+    render json: {
+      mode: "break",
+      adventure: {
+        id: completed_adventure.id,
+        ended_at: completed_adventure.ended_at,
+        break_minutes: break_minutes
+      }
+    }, status: :ok
+  end
+
   private
 
   # 冒険を取得するコールバック
