@@ -6,6 +6,7 @@ class Api::V1::CharactersController < ApplicationController
       character: {
         name: @character.name,
         level: @character.level,
+        gold: @character.gold,
         experience_points: @character.experience_points,
         hp: @character.hp,
         attack: @character.attack,
