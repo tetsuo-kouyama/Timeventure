@@ -35,3 +35,22 @@ export type AdventureResultResponse = {
   adventure: AdventureResult  // 冒険結果オブジェクト
   summary: AdventureSummary
 }
+
+// mode によって中身が異なる
+export type CurrentAdventureResponse =
+  | {
+      mode: "focus"
+      adventure: {
+        id: number
+        started_at: string
+        planned_focus_minutes: number
+      }
+    }
+  | {
+      mode: "break"
+      adventure: {
+        id: number
+        ended_at: string
+        break_minutes: number
+      }
+    }

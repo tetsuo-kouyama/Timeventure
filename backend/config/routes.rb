@@ -6,6 +6,9 @@ Rails.application.routes.draw do
       resource :timer_setting, only: %i[show update]
       resource :character, only: :show
       resources :adventures, only: :create do
+        collection do
+          get :current
+        end
         member do
           patch :complete
           patch :interrupt
