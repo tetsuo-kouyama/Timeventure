@@ -57,6 +57,9 @@ class Api::V1::AdventuresController < ApplicationController
       adventure.update!(status: :completed)
     end
 
+    # イベント生成後に冒険結果サマリーを作成
+    summary = AdventureSummary.new(generated_events).call
+
     render json: {
       adventure: {
         id: adventure.id,
@@ -64,7 +67,8 @@ class Api::V1::AdventuresController < ApplicationController
         started_at: adventure.started_at,
         ended_at: adventure.ended_at,
         generated_events_count: generated_events.size
-      }
+      },
+      summary: summary  # 作成したサマリーを返す
     }, status: :ok
   end
 
@@ -88,6 +92,8 @@ class Api::V1::AdventuresController < ApplicationController
       adventure.update!(status: :interrupted)
     end
 
+    summary = AdventureSummary.new(generated_events).call
+
     render json: {
       adventure: {
         id: adventure.id,
@@ -95,7 +101,8 @@ class Api::V1::AdventuresController < ApplicationController
         started_at: adventure.started_at,
         ended_at: adventure.ended_at,
         generated_events_count: generated_events.size
-      }
+      },
+      summary: summary
     }, status: :ok
   end
 end

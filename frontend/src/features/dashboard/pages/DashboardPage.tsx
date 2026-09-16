@@ -6,12 +6,19 @@ import { getTimerSetting } from "@/features/timer/api/timerSettingApi"
 import type { TimerSetting } from "@/features/timer/types/timer"
 import { TimerPanel } from "@/features/timer/components/TimerPanel"
 
+import type { AdventureResultResponse } from "@/features/adventure/types/adventure"
+import { AdventureResultCard } from "@/features/adventure/components/AdventureResultCard"
+
 export function DashboardPage() {
   const location = useLocation()
   const navigate = useNavigate()
 
   const [message, setMessage] = useState(location.state?.message ?? "")
   const [timerSetting, setTimerSetting] = useState<TimerSetting | null>(null)
+
+  // 完了・中断した冒険の結果
+  const [adventureResult, setAdventureResult] =
+    useState<AdventureResultResponse | null>(null)
 
   // ログイン後などのメッセージを3秒間表示する処理
   useEffect(() => {
@@ -52,28 +59,26 @@ export function DashboardPage() {
       <div className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">集中タイマー</h1>
-          <Link 
-            to="/timer-setting" 
+          <Link
+            to="/timer-setting"
             className={buttonVariants({ variant: "outline" })}
           >
             設定
           </Link>
         </div>
-        
+
 
         {timerSetting ? (
           <>
-            <TimerPanel setting={timerSetting} />
+            <div className="flex flex-col items-center gap-8">
+              <TimerPanel
+                setting={timerSetting}
+                onAdventureResult={setAdventureResult}
+              />
 
-            <div className="mt-6 flex justify-center gap-8">
-              <p>
-                集中タイマー: {timerSetting.focus_minutes}分
-              </p>
-
-              <p>
-                休憩タイマー: {timerSetting.break_minutes}分
-              </p>
+              <AdventureResultCard result={adventureResult} />
             </div>
+
           </>
         ) : (
           <p className="mt-6">
