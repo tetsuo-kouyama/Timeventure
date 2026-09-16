@@ -1,105 +1,71 @@
 class Api::V1::AdventuresController < ApplicationController
+  before_action :set_adventure, only: %i[complete interrupt]
+  before_action :ensure_adventure_ongoing, only: %i[complete interrupt]
+
   def create
     character = Current.user.character
-    # 開始エリアを取得（MVPでは固定）
-    start_area = Area.find_by!(name: "草原")
-
-    timer_setting = Current.user.timer_setting
-    planned_focus_minutes = timer_setting.focus_minutes
-
-    random_seed = SecureRandom.random_number(2**63)
-
-    adventure = character.adventures.create!(
-      start_area: start_area,
-      planned_focus_minutes: planned_focus_minutes,
-      status: :ongoing,
-      random_seed: random_seed,
-      started_at: Time.current
-    )
+    adventure = Adventure.start_for!(character: character)
 
     render json: {
       adventure: {
         id: adventure.id,
         status: adventure.status,
         started_at: adventure.started_at,
-        planned_focus_minutes: adventure.planned_focus_minutes
+        planned_focus_minutes: character.user.timer_setting.focus_minutes
       }
     }, status: :created
   end
 
   def complete
-    adventure = Current.user.character.adventures.find(params[:id])
+    scheduled_end_at =
+      @adventure.started_at + @adventure.planned_focus_minutes.minutes
 
-    unless adventure.ongoing?
+    if Time.current < scheduled_end_at
       render json: {
-        error: "進行中の冒険はありません"
+        error: "タイマーはまだ終了していません"
       }, status: :unprocessable_entity
       return
     end
 
-    generated_events = []
-
-    Adventure.transaction do
-      scheduled_end_at =
-        adventure.started_at + adventure.planned_focus_minutes.minutes
-      if Time.current < scheduled_end_at
-        render json: {
-          error: "タイマーはまだ終了していません"
-        }, status: :unprocessable_entity
-        return
-      end
-
-      adventure.update!(ended_at: scheduled_end_at)
-
-      generated_events =
-        AdventureEventGenerator.new(adventure).call
-
-      adventure.update!(status: :completed)
-    end
-
-    # イベント生成後に冒険結果サマリーを作成
-    summary = AdventureSummary.new(generated_events).call
-
-    render json: {
-      adventure: {
-        id: adventure.id,
-        status: adventure.status,
-        started_at: adventure.started_at,
-        ended_at: adventure.ended_at,
-        generated_events_count: generated_events.size
-      },
-      summary: summary  # 作成したサマリーを返す
-    }, status: :ok
+    finish_adventure(ended_at: scheduled_end_at, status: :completed)
   end
 
   def interrupt
-    adventure = Current.user.character.adventures.find(params[:id])
+    finish_adventure(ended_at: Time.current, status: :interrupted)
+  end
 
-    unless adventure.ongoing?
-      render json: {
-        error: "進行中の冒険はありません"
-      }, status: :unprocessable_entity
-      return
-    end
+  private
 
-    generated_events = []
+  # 冒険を取得するコールバック
+  def set_adventure
+    @adventure = Current.user.character.adventures.find(params[:id])
+  end
 
-    Adventure.transaction do
-      adventure.update!(ended_at: Time.current)
-      generated_events =
-        AdventureEventGenerator.new(adventure).call
+  # ongoing であることを保証するコールバック
+  def ensure_adventure_ongoing
+    return if @adventure.ongoing?
+    render json: {
+      error: "進行中の冒険はありません"
+    }, status: :unprocessable_entity
+  end
 
-      adventure.update!(status: :interrupted)
-    end
+  # 冒険終了後のイベントからサマリーを作成
+  def finish_adventure(ended_at:, status:)
+    generated_events = @adventure.finish!(ended_at: ended_at, status: status)
 
     summary = AdventureSummary.new(generated_events).call
 
+    render_adventure_result(generated_events, summary)
+  end
+
+  # 完了・中断時のHTTPレスポンス作成処理
+  def render_adventure_result(generated_events, summary)
     render json: {
       adventure: {
-        id: adventure.id,
-        status: adventure.status,
-        started_at: adventure.started_at,
-        ended_at: adventure.ended_at,
+        id: @adventure.id,
+        status: @adventure.status,
+        started_at: @adventure.started_at,
+        ended_at: @adventure.ended_at,
         generated_events_count: generated_events.size
       },
       summary: summary
