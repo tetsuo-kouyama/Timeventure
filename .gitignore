@@ -33,6 +33,12 @@
 # Credentials
 /backend/config/*.key
 
+# SimpleCov
+/backend/coverage/
+
+# rails_best_practices
+/backend/rails_best_practices_output.html
+
 # === Frontend ===
 
 # Dependencies
