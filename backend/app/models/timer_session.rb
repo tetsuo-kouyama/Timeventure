@@ -1,4 +1,6 @@
 class TimerSession < ApplicationRecord
+  class AlreadyRunningError < StandardError; end
+
   MAX_FOCUS_MINUTES = 180  # 最大集中時間
   MIN_FOCUS_MINUTES = 5    # 最小集中時間
   MAX_BREAK_MINUTES = 180  # 最大休憩時間
@@ -35,6 +37,31 @@ class TimerSession < ApplicationRecord
 
   validate :minutes_must_match_interval
   validate :phase_ends_at_must_be_after_start
+
+  # タイマーを開始する処理
+  def self.start_for!(user:)
+    timer_setting = user.timer_setting
+    started_at = Time.current
+
+    transaction do
+      if user.timer_sessions.ongoing.exists?
+        raise AlreadyRunningError, "すでに実行中のタイマーがあります"
+      end
+
+      timer_session = user.timer_sessions.create!(
+        focus_minutes: timer_setting.focus_minutes,
+        break_minutes: timer_setting.break_minutes,
+        phase: :focus,
+        status: :ongoing,
+        phase_started_at: started_at,
+        phase_ends_at: started_at + timer_setting.focus_minutes.minutes
+      )
+
+      Adventure.start_for!(timer_session: timer_session)
+
+      timer_session
+    end
+  end
 
   private
 

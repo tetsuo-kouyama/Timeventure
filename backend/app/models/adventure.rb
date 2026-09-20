@@ -23,13 +23,14 @@ class Adventure < ApplicationRecord
   validates :started_at, presence: true
 
   # 冒険を開始する処理
-  def self.start_for!(character:)
-    character.adventures.create!(
+  def self.start_for!(timer_session:)
+    timer_session.create_adventure!(
+      character: timer_session.user.character,
       start_area: Area.find_by(name: "草原"),
-      planned_focus_minutes: character.user.timer_setting.focus_minutes,
+      planned_focus_minutes: timer_session.focus_minutes,
       status: :ongoing,
       random_seed: SecureRandom.random_number(2**63),
-      started_at: Time.current
+      started_at: timer_session.phase_started_at
     )
   end
 

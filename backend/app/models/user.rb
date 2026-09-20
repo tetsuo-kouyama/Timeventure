@@ -3,7 +3,7 @@ class User < ApplicationRecord
 
   has_many :sessions, dependent: :destroy
   has_one :timer_setting, dependent: :destroy
-  has_many :timer_session, dependent: :destroy
+  has_many :timer_sessions, dependent: :destroy
   has_one :character, dependent: :destroy
 
   # User のレコードが DB に作成された「直後」に指定したメソッドを実行
