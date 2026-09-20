@@ -1,5 +1,7 @@
 class TimerSession < ApplicationRecord
   class AlreadyRunningError < StandardError; end
+  class NotRunningFocusError < StandardError; end
+  class FocusNotFinishedError < StandardError; end
 
   MAX_FOCUS_MINUTES = 180  # 最大集中時間
   MIN_FOCUS_MINUTES = 5    # 最小集中時間
@@ -60,6 +62,36 @@ class TimerSession < ApplicationRecord
       Adventure.start_for!(timer_session: timer_session)
 
       timer_session
+    end
+  end
+
+  # 集中タイマーを終了する処理
+  def complete_focus!
+    with_lock do
+      unless focus? && ongoing?
+        raise NotRunningFocusError, "実行中のタイマーはありません"
+      end
+
+      if Time.current < phase_ends_at
+        raise FocusNotFinishedError, "タイマーはまだ終了していません"
+      end
+
+      generated_events = adventure.finish!(
+        ended_at: phase_ends_at,
+        status: :completed
+      )
+
+      if break_minutes.zero?
+        update!(status: :completed)
+      else
+        break_started_at = phase_started_at
+        update!(
+          phase: :break,
+          phase_started_at: break_started_at,
+          phase_ends_at: break_started_at + break_minutes.minutes
+        )
+      end
+      generated_events
     end
   end
 
