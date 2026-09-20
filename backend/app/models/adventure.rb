@@ -1,4 +1,5 @@
 class Adventure < ApplicationRecord
+  belongs_to :timer_session
   belongs_to :character
   belongs_to :start_area, class_name: "Area"
 

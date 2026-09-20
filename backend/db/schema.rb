@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_171021) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_20_082354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,9 +36,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_171021) do
     t.bigint "start_area_id", null: false
     t.datetime "started_at", null: false
     t.integer "status", null: false
+    t.bigint "timer_session_id", null: false
     t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_adventures_on_character_id"
     t.index ["start_area_id"], name: "index_adventures_on_start_area_id"
+    t.index ["timer_session_id"], name: "index_adventures_on_timer_session_id", unique: true
   end
 
   create_table "area_enemies", force: :cascade do |t|
@@ -102,6 +104,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_171021) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "timer_sessions", force: :cascade do |t|
+    t.integer "break_minutes", null: false
+    t.datetime "created_at", null: false
+    t.integer "focus_minutes", null: false
+    t.integer "phase", null: false
+    t.datetime "phase_ends_at", null: false
+    t.datetime "phase_started_at", null: false
+    t.integer "status", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_timer_sessions_on_user_id"
+  end
+
   create_table "timer_settings", force: :cascade do |t|
     t.integer "break_minutes", default: 5, null: false
     t.datetime "created_at", null: false
@@ -123,10 +138,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_171021) do
   add_foreign_key "adventure_events", "adventures"
   add_foreign_key "adventures", "areas", column: "start_area_id"
   add_foreign_key "adventures", "characters"
+  add_foreign_key "adventures", "timer_sessions"
   add_foreign_key "area_enemies", "areas"
   add_foreign_key "area_enemies", "enemies"
   add_foreign_key "areas", "areas", column: "prerequisite_area_id"
   add_foreign_key "characters", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "timer_sessions", "users"
   add_foreign_key "timer_settings", "users"
 end
