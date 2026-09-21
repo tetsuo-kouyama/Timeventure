@@ -5,6 +5,9 @@ Rails.application.routes.draw do
       resource :session, only: %i[create destroy]
       resource :timer_setting, only: %i[show update]
       resources :timer_sessions, only: :create do
+        collection do
+          get :current
+        end
         member do
           patch :complete_focus
           patch :interrupt

@@ -43,14 +43,17 @@ class TimerSession < ApplicationRecord
 
   # タイマーを開始する処理
   def self.start_for!(user:)
+    current_session = user.timer_sessions.ongoing.first
+    current_session&.sync_status!
+
+    if user.timer_sessions.ongoing.exists?
+      raise AlreadyRunningError, "すでに実行中のタイマーがあります"
+    end
+
     timer_setting = user.timer_setting
     started_at = Time.current
 
     transaction do
-      if user.timer_sessions.ongoing.exists?
-        raise AlreadyRunningError, "すでに実行中のタイマーがあります"
-      end
-
       timer_session = user.timer_sessions.create!(
         focus_minutes: timer_setting.focus_minutes,
         break_minutes: timer_setting.break_minutes,
@@ -83,6 +86,30 @@ class TimerSession < ApplicationRecord
         raise NotRunningBreakError, "実行中の休憩タイマーはありません"
       end
       update!(status: :completed)
+    end
+  end
+
+  # 終了予定時刻を過ぎたタイマーの状態を更新する
+  def sync_status!
+    retries = 0
+    begin
+      reload
+
+      if ongoing?
+        if focus? && Time.current >= phase_ends_at
+          complete_focus!
+        end
+
+        if break? && ongoing? && Time.current >= phase_ends_at
+          finish_break!
+        end
+      end
+      self
+
+    rescue NotRunningFocusError, NotRunningBreakError
+      retries += 1
+      retry if retries <= 2
+      raise
     end
   end
 

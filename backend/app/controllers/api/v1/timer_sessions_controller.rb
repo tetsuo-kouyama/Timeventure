@@ -51,6 +51,18 @@ class Api::V1::TimerSessionsController < ApplicationController
     }, status: :unprocessable_entity
   end
 
+  def current
+    timer_session = Current.user.timer_sessions.ongoing.first
+
+    timer_session&.sync_status!
+
+    render json: {
+      timer_session: if timer_session&.ongoing?
+                       timer_session_json(timer_session)
+                     end
+    }, status: :ok
+  end
+
   private
 
   def set_timer_session
