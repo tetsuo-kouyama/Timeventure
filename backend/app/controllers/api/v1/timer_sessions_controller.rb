@@ -1,5 +1,6 @@
 class Api::V1::TimerSessionsController < ApplicationController
-  before_action :set_timer_session, only: %i[complete_focus interrupt]
+  before_action :set_timer_session, only: %i[complete_focus interrupt finish_break]
+
   def create
     current_user = Current.user
     timer_session = TimerSession.start_for!(user: current_user)
@@ -32,6 +33,19 @@ class Api::V1::TimerSessionsController < ApplicationController
     render_adventure_result(@timer_session, generated_events)
 
   rescue TimerSession::NotRunningFocusError => e
+    render json: {
+      error: e.message
+    }, status: :unprocessable_entity
+  end
+
+  def finish_break
+    @timer_session.finish_break!
+
+    render json: {
+      timer_session: timer_session_json(@timer_session)
+    }, status: :ok
+
+  rescue TimerSession::NotRunningBreakError => e
     render json: {
       error: e.message
     }, status: :unprocessable_entity

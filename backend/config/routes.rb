@@ -8,6 +8,7 @@ Rails.application.routes.draw do
         member do
           patch :complete_focus
           patch :interrupt
+          patch :finish_break
         end
       end
       resource :character, only: :show

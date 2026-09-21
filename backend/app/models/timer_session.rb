@@ -1,6 +1,7 @@
 class TimerSession < ApplicationRecord
   class AlreadyRunningError < StandardError; end
   class NotRunningFocusError < StandardError; end
+  class NotRunningBreakError < StandardError; end
   class FocusNotFinishedError < StandardError; end
 
   MAX_FOCUS_MINUTES = 180  # 最大集中時間
@@ -73,6 +74,16 @@ class TimerSession < ApplicationRecord
   # 集中タイマーの中断
   def interrupt!
     finish_focus!(status: :interrupted)
+  end
+
+  # 休憩タイマーの終了
+  def finish_break!
+    with_lock do
+      unless break? && ongoing?
+        raise NotRunningBreakError, "実行中の休憩タイマーはありません"
+      end
+      update!(status: :completed)
+    end
   end
 
   private
