@@ -65,34 +65,14 @@ class TimerSession < ApplicationRecord
     end
   end
 
-  # 集中タイマーを終了する処理
+  # 集中タイマーの終了
   def complete_focus!
-    with_lock do
-      unless focus? && ongoing?
-        raise NotRunningFocusError, "実行中のタイマーはありません"
-      end
+    finish_focus!(status: :completed)
+  end
 
-      if Time.current < phase_ends_at
-        raise FocusNotFinishedError, "タイマーはまだ終了していません"
-      end
-
-      generated_events = adventure.finish!(
-        ended_at: phase_ends_at,
-        status: :completed
-      )
-
-      if break_minutes.zero?
-        update!(status: :completed)
-      else
-        break_started_at = phase_started_at
-        update!(
-          phase: :break,
-          phase_started_at: break_started_at,
-          phase_ends_at: break_started_at + break_minutes.minutes
-        )
-      end
-      generated_events
-    end
+  # 集中タイマーの中断
+  def interrupt!
+    finish_focus!(status: :interrupted)
   end
 
   private
@@ -113,6 +93,48 @@ class TimerSession < ApplicationRecord
 
     if phase_ends_at <= phase_started_at
       errors.add(:phase_ends_at, "は開始時刻より後にしてください")
+    end
+  end
+
+  # タイマーを終了する処理
+  def finish_focus!(status:)
+    with_lock do
+      unless focus? && ongoing?
+        raise NotRunningFocusError, "実行中のタイマーはありません"
+      end
+
+      now = Time.current
+
+      if status == :completed && now < phase_ends_at
+        raise FocusNotFinishedError, "タイマーはまだ終了していません"
+      end
+
+      # 終了予定時刻を過ぎていた場合は通常終了として扱う
+      if now >= phase_ends_at
+        ended_at = phase_ends_at
+        status = :completed
+      else
+        ended_at = now
+      end
+
+      generated_events = adventure.finish!(
+        ended_at: ended_at,
+        status: status
+      )
+
+      if status == :interrupted
+        update!(status: :interrupted)
+      elsif break_minutes.zero?
+        update!(status: :completed)
+      else
+        break_started_at = phase_ends_at
+        update!(
+          phase: :break,
+          phase_started_at: break_started_at,
+          phase_ends_at: break_started_at + break_minutes.minutes
+        )
+      end
+      generated_events
     end
   end
 end

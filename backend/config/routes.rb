@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :timer_sessions, only: :create do
         member do
           patch :complete_focus
+          patch :interrupt
         end
       end
       resource :character, only: :show
