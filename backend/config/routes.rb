@@ -4,6 +4,16 @@ Rails.application.routes.draw do
       resources :users, only: :create
       resource :session, only: %i[create destroy]
       resource :timer_setting, only: %i[show update]
+      resources :timer_sessions, only: :create do
+        collection do
+          get :current
+        end
+        member do
+          patch :complete_focus
+          patch :interrupt
+          patch :finish_break
+        end
+      end
       resource :character, only: :show
       resources :adventures, only: :create do
         collection do
